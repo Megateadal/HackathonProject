@@ -1,5 +1,3 @@
-import sys
-
 import requests
 
 CLIENT_ID = '5ee7a648878b46cfb5f4c973736acc99'
