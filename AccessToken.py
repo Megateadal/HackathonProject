@@ -1,28 +1,35 @@
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
+import base64
+import requests
+import datetime
 
-CLIENT_ID = '5ee7a648878b46cfb5f4c973736acc99'
-CLIENT_SECRET = 'ff39b32792fa4603b830accb294bf433'
+client_id = '5ee7a648878b46cfb5f4c973736acc99'
+client_secret = 'ff39b32792fa4603b830accb294bf433'
+redirect_url = 'http://localhost:8000'
 
-client_credentials_manager = SpotifyClientCredentials(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
-sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+client_creds = f"{client_id}:{client_secret}"
+type (client_creds)
 
-artist_name = []
-track_name = []
-popularity = []
-track_id = []
+client_creds_b64 = base64.b64encode(client_creds.encode())
+type(client_creds_b64)
 
-for i in range(0,50,50):
-    track_results = sp.search(q='year:2018', type='track', limit=50,offset=i)
-    for i, t in enumerate(track_results['tracks']['items']):
-        artist_name.append(t['artists'][0]['name'])
-        track_name.append(t['name'])
-        track_id.append(t['id'])
-        popularity.append(t['popularity'])
 
-    import pandas as pd
+token_url = 'https://accounts.spotify.com/api/token'
+method = "POST"
+token_data = {
+    "grant_type": "client_credentials"
+}
+token_headers = {
+    "Authorization": f"Basic {client_creds_b64.decode()}" # <base64 encoded client_id:client_secret>
+}
 
-    track_dataframe = pd.DataFrame(
-        {'artist_name': artist_name, 'track_name': track_name, 'track_id': track_id, 'popularity': popularity})
-    print(track_dataframe)
-    track_dataframe.head()
+r = requests.post(token_url, data=token_data, headers=token_headers)
+print(r.json())
+valid_request = r.status_code in range(200, 299)
+token_response_data = r.json()
+
+if valid_request:
+    now = datetime.datetime.now()
+    access_token = token_response_data['access_token']
+    expires_in = token_response_data['expires_in']
+    expires = now + datetime.timedelta(seconds=expires_in)
+    did_expire = expires < now
