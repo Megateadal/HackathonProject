@@ -1,50 +1,33 @@
-try:
-  import spotipy
-  from spotipy.oauth2 import SpotifyClientCredentials
-  import pandas as pd
-  import time
-except ImportError:
-  print("whoopsie")
+import os
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+
+os.environ['SPOTIPY_CLIENT_ID'] = 'cfa82f8e94274193b3be3f646ed2ef96'
+os.environ['SPOTIPY_CLIENT_SECRET'] = 'cb4e4456e93e471a8416f9c24c60e524'
+os.environ['SPOTIPY_REDIRECT_URI'] = 'http://www.google.com/'
+
+scope = 'user-top-read'
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
+playlists = sp.user_playlists('ShawChifamba')
+print(playlists['total'])
 
 
-# Connecting to spotify api - use this first 
-client_id = "cfa82f8e94274193b3be3f646ed2ef96"
-# Hush Hush
-client_secret = "cb4e4456e93e471a8416f9c24c60e524"
-cdm = SpotifyClientCredentials(client_id, client_secret)
-spotify = spotipy.Spotify(client_credentials_manager=cdm)
+def get_playlists(sp):
+    global playlists
+    playlist_uri = []
 
+    for playlist in playlists['items']:
+        print(sp.playlist_tracks(playlist['uri']))
+        
 
-# Now down here you can start playing around
-# Right lets try and get my artists
-# My spotify name is Shaw Chifamba
-
-"""
-Retrieve Data from a specfic playlist
-And then lets take a look at the energy of that playlist
-"""
-def GetSomeIDs(user, playlist_id):
-  ids = []
-  playlist = spotify.user_playlist(user, playlist_id)
-    ids.append(album['id'])
-  return ids
-
-ids = GetSomeIDs('Shaw Chifamba', '13nuKjj1lmmDG6o7i51uc1')   
-print(len(ids))
-print(ids)
-
-"""
-
-
-"""
+get_playlists(sp)
 
 
 
-
-
-
-# Retrieve Artist Data
-#artist_name = "{Post Malone}"
-#search_result = spotify.search(artist_name)
-#search_result['tracks']['items'][0]['artists']
-#print(search_result)
+# while playlists:
+# for i, playlist in enumerate(playlists['items']):
+#     print(f"URL: {playlist['uri']} NAME: {playlist['name']} TOTAL: ")
+# if playlists['next']:
+#     playlists = sp.next(playlists)
+# else:
+#     playlists = None
